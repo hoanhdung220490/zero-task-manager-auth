@@ -1,0 +1,18 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZERO Task • Đăng nhập Google</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>body{background:#eff6fb;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#16344b}.wrap{background:white;padding:36px;text-align:center;border-radius:18px;box-shadow:0 12px 50px #14578722;max-width:390px;margin:16px}.logo{background:#127baf;color:white;display:inline-flex;align-items:center;justify-content:center;width:51px;height:51px;border-radius:13px;font-size:28px;font-weight:bold}h2{font-size:20px}p{font-size:13px;line-height:1.7;color:#637f93}#btn{display:flex;justify-content:center;margin:27px 0}small{color:#789;line-height:1.5}</style></head><body><div class="wrap"><div class="logo">Z</div><h2>Đăng nhập Google</h2><p>Chọn tài khoản đã được chủ sở hữu ZERO TASK MANAGER PRO cấp quyền.</p><div id="btn"></div><small id="message">Phiên đăng nhập được xác minh trên máy chủ.</small></div>
+<script>
+'use strict';
+const query=new URLSearchParams(location.search),clientId=query.get('client_id'),target=query.get('return_origin');
+// Never send Google credentials to an arbitrary opener or arbitrary external site.
+const allowed=/^https:\/\/(script\.googleusercontent\.com|script\.google\.com)$/;
+function status(msg){document.getElementById('message').textContent=msg;}
+if(!clientId || !/^\d+-[a-z0-9_-]+\.apps\.googleusercontent\.com$/.test(clientId) || !allowed.test(target||''))status('Cấu hình đăng nhập không hợp lệ.');
+else{let n=0;const timer=setInterval(()=>{if(window.google?.accounts?.id){clearInterval(timer);try{google.accounts.id.initialize({client_id:clientId,callback:r=>{
+ if(!window.opener){status('Không tìm thấy cửa sổ ứng dụng đã mở. Hãy quay lại ứng dụng và thử lại.');return;}
+ window.opener.postMessage({type:'ZERO_TASK_AUTH',credential:r.credential},target);
+ status('Đã chuyển thông tin xác thực. Bạn có thể đóng cửa sổ này.');
+ setTimeout(()=>window.close(),800);
+ },auto_select:false});google.accounts.id.renderButton(document.getElementById('btn'),{theme:'outline',size:'large',width:280,shape:'rectangular'});}catch(err){status('Lỗi Google Sign-In: '+err.message);}}
+ else if(++n>50){clearInterval(timer);status('Không tải được Google Sign-In. Kiểm tra mạng hoặc chặn cookie.');}},200);}
+</script></body></html>
